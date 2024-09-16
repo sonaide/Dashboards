@@ -4,3 +4,6 @@ csv_models/
 
 # python cache files
 *.pyc
+
+# secrets.toml
+.streamlit/secrets.toml
