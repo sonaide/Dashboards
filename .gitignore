@@ -1,0 +1,6 @@
+# folders
+csv_datasets/
+csv_models/
+
+# python cache files
+*.pyc
