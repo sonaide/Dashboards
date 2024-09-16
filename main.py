@@ -28,7 +28,7 @@ os.makedirs(datasets_files_folder, exist_ok=True)
 model_list = list_models_in_bucket(model_bucket_name, prefix="distress_hm")
 minimum_version = "1.0.5"
 model_list = [model_path for model_path in model_list if model_version_from_path(model_path) >= minimum_version]
-model_path = st.sidebar.selectbox("Model", model_list, 1) # streamlit selectbox for models
+model_path = st.sidebar.selectbox("Model", model_list, 2) # streamlit selectbox for models
 model_files = [f for f in list_files_in_s3_folder(model_bucket_name, model_path) if (f.endswith(".csv") or f.endswith(".yaml"))]
 
 for f in model_files:
