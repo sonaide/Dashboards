@@ -26,9 +26,11 @@ os.makedirs(datasets_files_folder, exist_ok=True)
 
 # model csv download
 model_list = list_models_in_bucket(model_bucket_name, prefix="distress_hm")
-minimum_version = "1.0.5"
-model_list = [model_path for model_path in model_list if model_version_from_path(model_path) >= minimum_version]
-model_path = st.sidebar.selectbox("Model", model_list, 2) # streamlit selectbox for models
+minimum_version = "1.0.7"
+# models_to_keep = ["1.0.4"]
+models_to_keep = []
+model_list = [model_path for model_path in model_list if (model_version_from_path(model_path) >= minimum_version or model_version_from_path(model_path) in models_to_keep)]
+model_path = st.sidebar.selectbox("Model", model_list, 0) # streamlit selectbox for models
 model_files = [f for f in list_files_in_s3_folder(model_bucket_name, model_path) if (f.endswith(".csv") or f.endswith(".yaml"))]
 
 for f in model_files:
@@ -68,7 +70,6 @@ elif len(test_datasets_csv_files) == 1:
     test_dataset_csv_file = test_datasets_csv_files[0]
 
 ##### DATASETS INSIGHTS #####
-st.subheader(f"MODEL: {model_path}")
 st.subheader("Train, validation, and test datasets")
 col_train, col_valid, col_test = st.columns(3)
 col_train.subheader("Train")
@@ -99,7 +100,7 @@ fig_test_distress_no_distress_per_person = make_distress_no_distress_per_person_
 col_test.pyplot(fig_test_distress_no_distress_per_person)
 
 # train and valid all labels
-fig_train_all_labels = make_all_labels_fig(df_train, bar_color=color_2, fig_width=10, fig_height=4)
+fig_train_all_labels = make_all_labels_fig(df_train, bar_color=color_2, fig_width=12, fig_height=4)
 col_train.pyplot(fig_train_all_labels)
 
 fig_valid_all_labels = make_all_labels_fig(df_valid, bar_color=color_2, fig_width=10, fig_height=4)
@@ -129,5 +130,6 @@ col_fn_fp.pyplot(fig_fn_fp_per_person)
 
 
 # TPR vs FPR ROC curve
-fig_tpr_fpr = make_tpr_fpr_roc_fig(df_final_fp_fn_per_person)
+threshold_labels = [str(threshold) for threshold in thresholds]
+fig_tpr_fpr = make_tpr_fpr_roc_fig(df_final_fp_fn_per_person, threshold_labels=threshold_labels)
 col_roc.pyplot(fig_tpr_fpr)
