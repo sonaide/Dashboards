@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from sonAI_tools_utils import _extract_person_from_filename, _extract_microphone_from_filename, list_files_in_s3_folder
 
 def extract_unique_persIDs(df):
@@ -9,8 +10,8 @@ def extract_unique_microphones(df):
     df_filename = df["current_filename"].apply(lambda x: _extract_microphone_from_filename(x))
     return sorted(list(set(df_filename.to_list())))
 
-def boolean_dict_to_keylist(boolean_dict):
-    return [key for key in boolean_dict if boolean_dict[key]]
+def extract_test_dataset_name_from_csv_filepath(csv_filepath, test_dataset_name_marker, suffix):
+    return csv_filepath.split(os.path.basename(test_dataset_name_marker))[1][9:-len(suffix)]
 
 def count_distress_no_distress(df):
     n_distress = df[df.associated_label == "distress"].shape[0]

@@ -4,7 +4,7 @@ import os
 import yaml
 
 from sonAI_tools_utils import list_files_in_s3_folder, download_from_s3
-from utils import list_models_in_bucket, model_version_from_path,  prepare_fn_fp_per_person_per_threshold
+from utils import list_models_in_bucket, model_version_from_path,  prepare_fn_fp_per_person_per_threshold, extract_test_dataset_name_from_csv_filepath
 from plots import make_distress_no_distress_fig, make_distress_no_distress_per_person_fig, make_all_labels_fig, make_fn_fp_per_person_fig, make_tpr_fpr_roc_fig, color_1, color_2
 
 
@@ -54,9 +54,7 @@ if not os.path.exists(os.path.join(datasets_files_folder, valid_dataset_csv_file
 model_csv_inference_files = [f for f in model_files if f.endswith(".csv")]
 test_dataset_name_marker = "val_threshold_stud="
 suffix = "_inferences.csv"
-def extract_test_dataset_name_from_csv_filepath(csv_filepath):
-    return csv_filepath.split(os.path.basename(test_dataset_name_marker))[1][9:-len(suffix)]
-test_datasets_used_in_existing_inference = set([extract_test_dataset_name_from_csv_filepath(f) for f in model_csv_inference_files])
+test_datasets_used_in_existing_inference = set([extract_test_dataset_name_from_csv_filepath(f, test_dataset_name_marker, suffix) for f in model_csv_inference_files if "best_model" not in f])
 
 #TODO select test dataset if multiple test dataset inferences
 test_datasets_csv_files = [f"{dataset_name}_test_metadatas.csv" for dataset_name in test_datasets_used_in_existing_inference]
@@ -64,10 +62,9 @@ for csv_file in test_datasets_csv_files:
     if not os.path.exists(os.path.join(datasets_files_folder, csv_file)):
         download_from_s3(datasets_bucket_name, csv_file, os.path.join(datasets_files_folder, csv_file))
 
-if len(test_datasets_csv_files) > 1:
-    raise NotImplementedError("Multiple test datasets inferences not supported yet")
-elif len(test_datasets_csv_files) == 1:
-    test_dataset_csv_file = test_datasets_csv_files[0]
+test_dataset_csv_file = st.sidebar.selectbox("Test dataset", test_datasets_csv_files, 0) # streamlit selectbox for test dataset
+test_dataset_name = test_dataset_csv_file.split("_test_metadatas")[0]
+model_csv_inference_files = [f for f in model_csv_inference_files if test_dataset_name in f]
 
 ##### DATASETS INSIGHTS #####
 st.subheader("Train, validation, and test datasets")
@@ -110,9 +107,6 @@ fig_test_all_labels = make_all_labels_fig(df_test, bar_color=color_2, fig_width=
 col_test.pyplot(fig_test_all_labels)
 
 ##### MODEL PERFORMANCE #####
-
-
-
 st.subheader("Model performance")
 col_fn_fp, col_roc = st.columns(2)
 

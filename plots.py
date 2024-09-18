@@ -76,7 +76,6 @@ def make_all_labels_fig(df_dataset, title="", text_color="white", bar_color="blu
     ax.tick_params(color=text_color, labelcolor=text_color)
     ax.set_title(title, color=text_color)
     ax.tick_params(axis='x', labelrotation=90)
-    ax.set_title(title, color=text_color)
 
     fig.set_figwidth(fig_width)
     fig.set_figheight(fig_height)
@@ -131,7 +130,6 @@ def make_tpr_fpr_roc_fig(df_final_fp_fn_per_person, threshold_labels, color="whi
             offset_y = 0.02
             ax.text(x+offset_x, y-offset_y, text, fontsize=3.5, color=color)
 
-    ax.set_title(f'ROC Curve (FPR vs TPR) for person {person}')
     ax.set_xlabel('False positive rate (FPR)', color=color)
     ax.set_ylabel('True positive rate (TPR)', color=color)
     ax.tick_params(color=color, labelcolor=color)
